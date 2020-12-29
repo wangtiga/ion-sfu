@@ -4,6 +4,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 
@@ -123,6 +124,8 @@ func main() {
 		<-jc.DisconnectNotify()
 	}))
 
+	http.HandleFunc("/", web)
+
 	var err error
 	if key != "" && cert != "" {
 		log.Infof("Listening at https://[%s]", addr)
@@ -134,4 +137,18 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func web(w http.ResponseWriter, r *http.Request) {
+	log.Infof("request in web")
+	//if r.Method == "GET" {
+	t, err := template.ParseFiles("./examples/pubsubtest/index.html")
+	if err != nil {
+		panic(err)
+	}
+	if err := t.Execute(w, nil); nil != err {
+		panic(err)
+	}
+	//}
+	log.Infof("request in web end")
 }
