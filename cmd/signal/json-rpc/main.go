@@ -4,6 +4,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"html/template"
 	"net"
 	"net/http"
 	"os"
@@ -150,6 +151,18 @@ func main() {
 	}))
 
 	go startMetrics(metricsAddr)
+
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Infof("request in web")
+		t, err := template.ParseFiles("./examples/pubsubtest/index.html")
+		if err != nil {
+			panic(err)
+		}
+		if err := t.Execute(w, nil); nil != err {
+			panic(err)
+		}
+		log.Infof("request in web end")
+	}))
 
 	var err error
 	if key != "" && cert != "" {
