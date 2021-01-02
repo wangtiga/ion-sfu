@@ -10,11 +10,16 @@ import (
 // Session represents a set of peers. Transports inside a session
 // are automatically subscribed to each other.
 type Session struct {
-	id             string
-	mu             sync.RWMutex
-	peers          map[string]*Peer
+	id string
+
+	mu    sync.RWMutex
+	peers map[string]*Peer
+
 	onCloseHandler func()
 	closed         bool
+
+	grtcmu    sync.RWMutex
+	grtcpeers map[string]*GRTCPeer
 }
 
 // NewSession creates a new session
@@ -23,7 +28,22 @@ func NewSession(id string) *Session {
 		id:     id,
 		peers:  make(map[string]*Peer),
 		closed: false,
+
+		grtcpeers: make(map[string]*GRTCPeer),
 	}
+}
+
+func (s *Session) AddGRTCPeer(peer *GRTCPeer) {
+	s.grtcmu.Lock()
+	s.grtcpeers[peer.id] = peer
+	s.grtcmu.Unlock()
+}
+
+func (s *Session) RemoveGRTCPeer(pid string) {
+	s.grtcmu.Lock()
+	log.Infof("RemoveGRTCPeer %s from session %s", pid, s.id)
+	delete(s.grtcpeers, pid)
+	s.grtcmu.Unlock()
 }
 
 // AddPublisher adds a transport to the session

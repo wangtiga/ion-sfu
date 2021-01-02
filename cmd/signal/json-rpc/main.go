@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strconv"
 
 	_ "net/http/pprof"
 
@@ -17,8 +18,10 @@ import (
 	websocketjsonrpc2 "github.com/sourcegraph/jsonrpc2/websocket"
 	"github.com/spf13/viper"
 
+	"github.com/lucsky/cuid"
 	log "github.com/pion/ion-log"
 	"github.com/pion/ion-sfu/cmd/signal/json-rpc/server"
+	"github.com/pion/ion-sfu/pkg/rtc"
 	"github.com/pion/ion-sfu/pkg/sfu"
 )
 
@@ -136,6 +139,12 @@ func main() {
 		WriteBufferSize: 1024,
 	}
 
+	grtc := rtc.NewRtcServer(sfu.GetBufferFactory())
+	if err := grtc.SetConfig(5000, 5001); nil != err {
+		log.Infof("RtcServerFail err=%v", err)
+		return
+	}
+
 	http.Handle("/ws", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
@@ -151,6 +160,19 @@ func main() {
 	}))
 
 	go startMetrics(metricsAddr)
+
+	http.Handle("/cmd/join", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		pid := cuid.New()
+		pid = r.FormValue("pid")
+		sid := r.FormValue("sid")
+		ssrc, _ := strconv.Atoi(r.FormValue("ssrc"))
+
+		sid = "test session"
+		ssrc = 3494657
+
+		p := sfu.NewGRTCPeer(pid, s)
+		p.Join(sid, uint32(ssrc))
+	}))
 
 	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Infof("request in web")

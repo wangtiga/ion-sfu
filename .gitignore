@@ -5,7 +5,6 @@ cover.out
 main
 .DS_Store
 .vscode
-vendor
 *.code-workspace
 *debug.test
 *.pem

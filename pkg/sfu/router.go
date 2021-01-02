@@ -18,6 +18,8 @@ type Router interface {
 	AddReceiver(receiver *webrtc.RTPReceiver, track *webrtc.TrackRemote) (Receiver, bool)
 	AddDownTracks(s *Subscriber, r Receiver) error
 	Stop()
+
+	AddGRTCReceiver(rtpParams webrtc.RTPParameters, track UpTrack) (Receiver, bool)
 }
 
 // RouterConfig defines router configurations
@@ -74,6 +76,10 @@ func (r *router) Stop() {
 	if r.config.WithStats {
 		stats.Peers.Dec()
 	}
+}
+
+func (r *router) AddGRTCReceiver(rtpParams webrtc.RTPParameters, track UpTrack) (Receiver, bool) {
+	return nil, false
 }
 
 func (r *router) AddReceiver(receiver *webrtc.RTPReceiver, track *webrtc.TrackRemote) (Receiver, bool) {

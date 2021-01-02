@@ -4,14 +4,18 @@ go 1.13
 
 require (
 	github.com/bep/debounce v1.2.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/gammazero/deque v0.0.0-20201010052221-3932da5530cc
 	github.com/gammazero/workerpool v1.1.1
 	github.com/gorilla/websocket v1.4.2
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/improbable-eng/grpc-web v0.13.0
+	github.com/kr/pretty v0.2.0 // indirect
 	github.com/lucsky/cuid v1.0.2
+	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/pion/dtls/v2 v2.0.4
+	github.com/pion/ice v0.7.18
 	github.com/pion/ion-log v1.0.0
 	github.com/pion/rtcp v1.2.6
 	github.com/pion/rtp v1.6.2
@@ -25,6 +29,8 @@ require (
 	github.com/sourcegraph/jsonrpc2 v0.0.0-20200429184054-15c2290dcb37
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
+	go.uber.org/multierr v1.6.0 // indirect
+	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
@@ -33,4 +39,5 @@ require (
 	google.golang.org/grpc/examples v0.0.0-20201209011439-fd32f6a4fefe // indirect
 	google.golang.org/protobuf v1.25.0
 	gopkg.in/ini.v1 v1.51.1 // indirect
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 )

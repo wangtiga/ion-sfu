@@ -132,6 +132,10 @@ func NewWebRTCTransportConfig(c Config) WebRTCTransportConfig {
 	return w
 }
 
+func GetBufferFactory() *buffer.Factory {
+	return bufferFactory
+}
+
 // NewSFU creates a new sfu instance
 func NewSFU(c Config) *SFU {
 	// Init random seed
