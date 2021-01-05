@@ -152,8 +152,12 @@
       };
 
       const signalLocal = new Signal.IonSFUJSONRPCSignal(
-        "wss://t3.tiga.wang/ws"
+        "ws://localhost:7000/ws"
       );
+
+      //const signalLocal = new Signal.IonSFUJSONRPCSignal(
+      //  "wss://t3.tiga.wang/ws"
+      //);
 
       const clientLocal = new IonSDK.Client(signalLocal, config);
       signalLocal.onopen = () => clientLocal.join("test session");
