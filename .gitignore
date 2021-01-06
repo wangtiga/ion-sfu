@@ -10,3 +10,4 @@ main
 *.pem
 bin
 *.generated.go
+*.orig

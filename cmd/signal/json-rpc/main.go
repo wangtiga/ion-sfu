@@ -4,13 +4,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"html/template"
 	"net"
 	"net/http"
 	"os"
 	"strconv"
 
 	_ "net/http/pprof"
+
+	"html/template"
 
 	"github.com/gorilla/websocket"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -144,6 +145,29 @@ func main() {
 		log.Infof("RtcServerFail err=%v", err)
 		return
 	}
+	http.Handle("/cmd/join", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		pid := cuid.New()
+		pid = r.FormValue("pid")
+		sid := r.FormValue("sid")
+		ssrc, _ := strconv.Atoi(r.FormValue("ssrc"))
+
+		sid = "test session"
+		ssrc = 3494657
+
+		p := sfu.NewGRTCPeer(pid, s)
+		p.Join(sid, uint32(ssrc))
+	}))
+	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Infof("request in web")
+		t, err := template.ParseFiles("./examples/pubsubtest/index.html")
+		if err != nil {
+			panic(err)
+		}
+		if err := t.Execute(w, nil); nil != err {
+			panic(err)
+		}
+		log.Infof("request in web end")
+	}))
 
 	http.Handle("/ws", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
@@ -160,31 +184,6 @@ func main() {
 	}))
 
 	go startMetrics(metricsAddr)
-
-	http.Handle("/cmd/join", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		pid := cuid.New()
-		pid = r.FormValue("pid")
-		sid := r.FormValue("sid")
-		ssrc, _ := strconv.Atoi(r.FormValue("ssrc"))
-
-		sid = "test session"
-		ssrc = 3494657
-
-		p := sfu.NewGRTCPeer(pid, s)
-		p.Join(sid, uint32(ssrc))
-	}))
-
-	http.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Infof("request in web")
-		t, err := template.ParseFiles("./examples/pubsubtest/index.html")
-		if err != nil {
-			panic(err)
-		}
-		if err := t.Execute(w, nil); nil != err {
-			panic(err)
-		}
-		log.Infof("request in web end")
-	}))
 
 	var err error
 	if key != "" && cert != "" {
