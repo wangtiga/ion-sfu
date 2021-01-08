@@ -7,6 +7,8 @@ import (
 
 	"github.com/gammazero/workerpool"
 	"github.com/pion/ion-sfu/pkg/buffer"
+	"github.com/pion/ion-sfu/pkg/common"
+	"github.com/pion/ion-sfu/pkg/config"
 	"github.com/pion/rtcp"
 	"github.com/pion/rtp"
 	"github.com/pion/webrtc/v3"
@@ -47,6 +49,8 @@ type GRTCTrack struct {
 	codec       webrtc.RTPCodecParameters
 	params      webrtc.RTPParameters
 	rid         string
+
+	log common.ILogger
 }
 
 func newGRTCTrack(kind webrtc.RTPCodecType, ssrc webrtc.SSRC, rid string) *GRTCTrack {
@@ -54,6 +58,8 @@ func newGRTCTrack(kind webrtc.RTPCodecType, ssrc webrtc.SSRC, rid string) *GRTCT
 		kind: kind,
 		ssrc: ssrc,
 		rid:  rid,
+
+		log: config.NewLogger("RTCTrack").With("ssrc", ssrc).With("kind", kind),
 	}
 }
 
@@ -136,6 +142,8 @@ type GRTCReceiver struct {
 	nackWorker     *workerpool.WorkerPool
 	isSimulcast    bool
 	onCloseHandler func()
+
+	log common.ILogger
 }
 
 // NewGRTCReceiver creates a new webrtc track receivers
@@ -148,6 +156,8 @@ func NewGRTCReceiver(track UpTrack, pid string) Receiver {
 		kind:        track.Kind(),
 		nackWorker:  workerpool.New(1),
 		isSimulcast: len(track.RID()) > 0,
+
+		log: config.NewLogger("RTCReceiver").With("ssrc", track.SSRC()).With("kind", track.Kind()),
 	}
 }
 
@@ -300,7 +310,12 @@ func (w *GRTCReceiver) writeRTP(layer int) {
 			w.onCloseHandler()
 		}
 	}()
+	w.log.With("layer", layer).Info("WriteRTP")
 	for pkt := range w.buffers[layer].PacketChan() {
+		w.log.
+			With("pktSSRC", pkt.SSRC).
+			With("pktSeq", pkt.SequenceNumber).
+			Info("ReadFrom PacketChan")
 		w.Lock()
 		for _, dt := range w.downTracks[layer] {
 			if err := dt.WriteRTP(pkt); err == io.EOF {
